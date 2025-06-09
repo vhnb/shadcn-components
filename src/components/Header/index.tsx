@@ -34,13 +34,13 @@ export default function Header() {
 
     return (
         <>
-            <header className="flex items-center justify-center h-[60px] bg-stone border-b border-neutral-300 sticky top-0 bg-white z-[1]">
+            <header className="flex items-center justify-center h-[60px] border-b border-zinc-800 sticky top-0 z-[1]">
                 <div className="flex items-center justify-between max-w-[1000px] w-[90%]">
                     <h1 onClick={handleEventToHome} className="cursor-pointer font-bold text-[20px]">Your<span className="ml-1 bg-zinc-800 text-[15px] py-1 px-2 rounded-[6px] text-white">Notes</span></h1>
                     <div className="flex">
                         <DropdownMenu>
                             <DropdownMenuTrigger>
-                                <Button className="mr-1" variant='outline'><FaUser color="#2e2e2e" /> Minha conta</Button>
+                                <Button className="mr-1" variant='outline'><FaUser color="#b4b4b4" /> Minha conta</Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
                                 <DropdownMenuLabel>Opções</DropdownMenuLabel>
