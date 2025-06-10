@@ -118,7 +118,7 @@ export default function Dashboard() {
                                         <SelectTrigger className="w-full">
                                             <SelectValue placeholder="Alterar a categoria" />
                                         </SelectTrigger>
-                                        <SelectContent>
+                                        <SelectContent className="z-[999]">
                                             <SelectGroup>
                                                 <SelectLabel>Categorias</SelectLabel>
                                                 <SelectItem value="todo">A fazer</SelectItem>
@@ -200,3 +200,4 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
         }
     }
 }
+

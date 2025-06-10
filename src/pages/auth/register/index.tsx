@@ -16,6 +16,7 @@ import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from "@/services/firebaseConnection"
 import { Toaster } from "@/components/ui/sonner"
 import { toast } from "sonner"
+import bcrypt from 'bcryptjs'
 
 export default function Register() {
     const [username, setUsername] = useState('')
@@ -34,10 +35,13 @@ export default function Register() {
             return
         }
 
+        const salt = await bcrypt.genSalt(10)
+        const hashpass = await bcrypt.hash(password, salt)
+
         await setDoc(userDocRef, {
             username: username,
             email: email,
-            password: password
+            password: hashpass
         })
 
         toast('Usuário registrado com sucesso!')

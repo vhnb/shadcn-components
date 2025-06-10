@@ -8,7 +8,7 @@ const firebaseConfig = {
   projectId: "yournotes-2f442",
   storageBucket: "yournotes-2f442.firebasestorage.app",
   messagingSenderId: "803962406853",
-  appId: "1:803962406853:web:1b4c40540b36c68861edac"
+  appId: "1:803962406853:web:96861db1eefe373c61edac"
 };
 
 const firebaseApp = initializeApp(firebaseConfig)

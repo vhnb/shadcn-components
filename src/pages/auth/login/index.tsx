@@ -71,7 +71,7 @@ export default function Login() {
                                     />
                                 </div>
                                 <Button type="submit" className="w-full">
-                                    Entrar
+                                    Entrar                                        
                                 </Button>
                                 <Button onClick={() => window.location.href = '/auth/register'} type="button" variant='outline' className="w-full">
                                     Cadastrar
