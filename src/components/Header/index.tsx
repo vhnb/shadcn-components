@@ -25,7 +25,7 @@ import {
 export default function Header() {
 
     function handleEvent() {
-        window.location.href = '/login'
+        window.location.href = '/auth/login'
     }
 
     function handleEventToHome() {

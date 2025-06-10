@@ -35,6 +35,8 @@ import { Button } from "@/components/ui/button"
 import CardNote from "@/components/CardNote"
 import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { getSession, useSession } from 'next-auth/react'
+import { GetServerSideProps } from "next"
 
 const chartData = [
     {month: "January", desktop: 18, mobile: 50},
@@ -57,6 +59,8 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export default function Dashboard() {
+    const {data: session} = useSession()
+
     function handleEvent() {
         toast('Nota cadastrada', {
             description: 'Sua nota foi cadastrada com sucesso.'
@@ -174,4 +178,25 @@ export default function Dashboard() {
             <Toaster />
         </>
     )
+}
+
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+    const session = await getSession({ req })
+
+    if(!session?.user) {
+        return {
+            redirect: {
+                destination: '/',
+                permanent: false
+            }
+        }
+    }
+
+    return {
+        props: {
+            user: {
+                email: session?.user?.email
+            }
+        }
+    }
 }
