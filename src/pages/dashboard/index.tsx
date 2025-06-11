@@ -92,7 +92,7 @@ export default function Dashboard({ user }: HomeProps) {
 
                 snap.forEach((doc) => {
                     list.push({
-                        id: doc.data().id,
+                        id: doc.id,
                         note: doc.data().note,
                         desc: doc.data().desc,
                         tag: doc.data().tag,
