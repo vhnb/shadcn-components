@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { FaUser } from "react-icons/fa";
 import { useSession } from "next-auth/react"
+import { signOut } from "next-auth/react"
 
 export default function Header() {
     const { data: session } = useSession()
@@ -50,7 +51,7 @@ export default function Header() {
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem onClick={() => window.location.href = '/dashboard'}>Dashboard</DropdownMenuItem>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem>Sair</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => signOut()}>Sair</DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         ) : (

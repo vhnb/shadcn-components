@@ -46,15 +46,14 @@ interface CardsProps {
     title: string,
     desc: string,
     tag: string,
-    createdAt: string
 }
 
-export default function CardNote({ title, desc, tag, createdAt }: CardsProps) {
+export default function CardNote({ title, desc, tag }: CardsProps) {
     return (
         <Card className="w-ful">
             <CardHeader className="mb-1">
                 <CardTitle>{title}</CardTitle>
-                <CardDescription>{createdAt}</CardDescription>
+                <CardDescription>{tag}</CardDescription>
             </CardHeader>
             <CardContent>
                 <p>{desc}</p>
