@@ -19,21 +19,37 @@ import { signIn } from "next-auth/react"
 export default function Login() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
     const router = useRouter()
 
     async function handleLoginUser(e: FormEvent) {
         e.preventDefault()
+        setIsLoading(true)
 
-        const result = await signIn('credentials', {
-            redirect: false,
-            email,
-            password
-        })
+        try {
+            const result = await signIn('credentials', {
+                redirect: false,
+                email,
+                password
+            })
 
-        if (!result?.error) {
+            if (result?.error) {
+                toast.error(result.error)
+                return
+            }
+
+            if (!result?.ok) {
+                toast.error('Erro ao fazer login. Tente novamente.')
+                return
+            }
+
+            toast.success('Login realizado com sucesso!')
             router.push('/dashboard')
-        } else {
-            toast.error(result.error || 'Erro ao fazer login')
+        } catch (error) {
+            console.error('Erro no login:', error)
+            toast.error('Erro ao fazer login. Tente novamente.')
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -58,22 +74,30 @@ export default function Login() {
                                         required
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
+                                        disabled={isLoading}
                                     />
                                 </div>
                                 <div className="grid gap-2">
-                                    <Label htmlFor="email">Senha</Label>
+                                    <Label htmlFor="password">Senha</Label>
                                     <Input
                                         type="password"
                                         placeholder="*******"
                                         required
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
+                                        disabled={isLoading}
                                     />
                                 </div>
-                                <Button type="submit" className="w-full">
-                                    Entrar                                        
+                                <Button type="submit" className="w-full" disabled={isLoading}>
+                                    {isLoading ? 'Entrando...' : 'Entrar'}
                                 </Button>
-                                <Button onClick={() => window.location.href = '/auth/register'} type="button" variant='outline' className="w-full">
+                                <Button 
+                                    onClick={() => router.push('/auth/register')} 
+                                    type="button" 
+                                    variant='outline' 
+                                    className="w-full"
+                                    disabled={isLoading}
+                                >
                                     Cadastrar
                                 </Button>
                             </form>

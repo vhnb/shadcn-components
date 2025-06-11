@@ -37,6 +37,9 @@ import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { getSession, useSession } from 'next-auth/react'
 import { GetServerSideProps } from "next"
+import { FormEvent, useState } from "react"
+import { addDoc, collection } from 'firebase/firestore';
+import { db } from "@/services/firebaseConnection"
 
 const chartData = [
     {month: "January", desktop: 18, mobile: 50},
@@ -60,6 +63,9 @@ const chartConfig = {
 
 export default function Dashboard() {
     const {data: session} = useSession()
+    const [noteInput, setNoteInput] = useState("")
+    const [descInput, setDescInput] = useState("")
+    const [tagSelect, setTagSelect] = useState("")
 
     function handleEvent() {
         toast('Nota cadastrada', {
@@ -67,19 +73,38 @@ export default function Dashboard() {
         })
     }
 
+    async function handleNewNote(e: FormEvent) {
+        e.preventDefault()
+
+        try {
+            await addDoc(collection(db, 'notes'), {
+                created: new Date(),
+                note: noteInput,
+                desc: descInput,
+                tag: tagSelect,
+                userEmail: session?.user?.email
+            })
+
+            setNoteInput("")
+            setDescInput("")
+            setTagSelect("")
+        } catch (err) {
+            console.error(err)
+        }
+    }
+
     return (
         <>
             <main className="flex items-start justify-center flex-row h-[calc(100vh-60px)]">
                 <div className="flex items-start justify-center flex-col max-w-[1000px] w-[90%]">
-                    <div className="w-full flex items-center justify-between flex-row mt-2 mb-5">
+                    <div className="w-full flex items-center justify-between flex-row mt-5 mb-5">
                         <Tooltip>
                             <TooltipTrigger>
-                                <div className="flex items-center justify-center flex-row">
-                                    <Avatar className="mr-2">
-                                        <AvatarImage src="https://github.com/vhnb.png" />
-                                        <AvatarFallback>VH</AvatarFallback>
-                                    </Avatar>
-                                    <h1 className="text-[15px] font-light">Victor Henrique</h1>
+                                <div className="flex items-center justify-center flex-row"> 
+                                    <div className="mr-2 bg-zinc-700 border border-zinc-500 p-3 rounded-full h-[38px] w-[38px] flex items-center justify-center">
+                                        <p className="text-[15px]">{session?.user?.email ? session.user.email.charAt(0).toUpperCase() : ""}</p>
+                                    </div>
+                                    <h1 className="text-[15px] font-light">{session?.user?.name}</h1>
                                 </div>
                             </TooltipTrigger>
                             <TooltipContent side="bottom">
@@ -97,13 +122,15 @@ export default function Dashboard() {
                                         Crie um novo item para sua lista.
                                     </SheetDescription>
                                 </SheetHeader>
-                                <form className="flex flex-col gap-3 p-4">
+                                <form onSubmit={handleNewNote} className="flex flex-col gap-3 p-4">
                                     <div className="grid gap-2">
                                         <Label htmlFor="email">Título</Label>
                                         <Input
-                                            type="email"
+                                            type="text"
                                             placeholder="Minha nota"
                                             required
+                                            value={noteInput}
+                                            onChange={(e) => setNoteInput(e.target.value)}
                                         />
                                     </div>
                                     <div className="grid gap-2">
@@ -112,9 +139,11 @@ export default function Dashboard() {
                                             placeholder="Hoje eu..."
                                             required
                                             className="resize-none"
+                                            value={descInput}
+                                            onChange={(e) => setDescInput(e.target.value)}
                                         />
                                     </div>
-                                    <Select>
+                                    <Select value={tagSelect} onValueChange={(value) => setTagSelect(value)}>
                                         <SelectTrigger className="w-full">
                                             <SelectValue placeholder="Alterar a categoria" />
                                         </SelectTrigger>
@@ -160,18 +189,6 @@ export default function Dashboard() {
                             tag="school"
                             createdAt="10/10/2020"
                         />
-                        <CardNote
-                            title="Lembrar"
-                            desc="hoje eu sla, cozinhei nao sei"
-                            tag="school"
-                            createdAt="10/10/2020"
-                        />
-                        <CardNote
-                            title="Lembrar"
-                            desc="hoje eu sla, cozinhei nao sei"
-                            tag="school"
-                            createdAt="10/10/2020"
-                        />
                     </div>
                 </div>
             </main>
@@ -200,4 +217,3 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
         }
     }
 }
-

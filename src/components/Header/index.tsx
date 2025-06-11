@@ -48,7 +48,7 @@ export default function Header() {
                                 <DropdownMenuContent>
                                     <DropdownMenuLabel>Opções</DropdownMenuLabel>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem onClick={() => window.location.href = 'dashboard'}>Dashboard</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => window.location.href = '/dashboard'}>Dashboard</DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem>Sair</DropdownMenuItem>
                                 </DropdownMenuContent>

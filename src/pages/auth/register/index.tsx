@@ -13,39 +13,46 @@ import { Button } from "@/components/ui/button"
 import { FormEvent, useState } from "react"
 import { useRouter } from "next/router"
 import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { db } from "@/services/firebaseConnection"
+import { db, auth } from "@/services/firebaseConnection"
 import { Toaster } from "@/components/ui/sonner"
 import { toast } from "sonner"
-import bcrypt from 'bcryptjs'
+import { createUserWithEmailAndPassword } from "firebase/auth"
+import { updateProfile } from "firebase/auth"
 
 export default function Register() {
     const [username, setUsername] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
     const router = useRouter()
 
     async function handleRegisterUser(e: FormEvent) {
         e.preventDefault()
+        setIsLoading(true)
 
-        const userDocRef = doc(db, 'users', email)
-        const userDocSnap = await getDoc(userDocRef)
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+            const user = userCredential.user
 
-        if (userDocSnap.exists()) {
-            toast('Este e-mail já está em uso. Tente outro.')
-            return
+            await updateProfile(user, {
+                displayName: username
+            })
+
+            const userDocRef = doc(db, 'users', user.uid)
+            await setDoc(userDocRef, {
+                uid: user.uid,
+                username: username,
+                email: user.email,
+            })
+
+            toast.success('Usuário registrado com sucesso!')
+            router.push('/auth/login')
+        } catch (err) {
+            console.error(err)
+            toast.error('Erro ao registrar. Verifique se o email já está em uso.')
+        } finally {
+            setIsLoading(false)
         }
-
-        const salt = await bcrypt.genSalt(10)
-        const hashpass = await bcrypt.hash(password, salt)
-
-        await setDoc(userDocRef, {
-            username: username,
-            email: email,
-            password: hashpass
-        })
-
-        toast('Usuário registrado com sucesso!')
-        router.push('/auth/login')
     }
 
     return (
@@ -69,6 +76,7 @@ export default function Register() {
                                         required
                                         value={username}
                                         onChange={(e) => setUsername(e.target.value)}
+                                        disabled={isLoading}
                                     />
                                 </div>
                                 <div className="grid gap-2">
@@ -79,6 +87,7 @@ export default function Register() {
                                         required
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
+                                        disabled={isLoading}
                                     />
                                 </div>
                                 <div className="grid gap-2">
@@ -91,10 +100,10 @@ export default function Register() {
                                         onChange={(e) => setPassword(e.target.value)}
                                     />
                                 </div>
-                                <Button type="submit" className="w-full">
-                                    Cadastre-se
+                                <Button type="submit" className="w-full" disabled={isLoading}>
+                                    {isLoading ? 'Cadastrando...' : 'Cadastre-se'}
                                 </Button>
-                                <Button onClick={() => window.location.href = '/auth/login'} variant='outline' type="button" className="w-full">
+                                <Button onClick={() => window.location.href = '/auth/login'} variant='outline' type="button" className="w-full" disabled={isLoading}>
                                     Entrar
                                 </Button>
                             </form>

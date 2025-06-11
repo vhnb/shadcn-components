@@ -45,5 +45,5 @@ export default NextAuth({
         signIn: "/auth/login",
         newUser: "/auth/register"
     },
-    secret: process.env.JWT_SECRET as string
+    secret: process.env.NEXTAUTH_SECRET
 })
