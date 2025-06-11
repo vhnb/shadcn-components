@@ -39,14 +39,17 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { getSession, useSession } from 'next-auth/react'
 import { GetServerSideProps } from "next"
 import { FormEvent, useState, useEffect } from "react"
-import { addDoc, collection, where, query, onSnapshot } from 'firebase/firestore';
+import { addDoc, collection, where, query, onSnapshot, deleteDoc, doc } from 'firebase/firestore';
 import { db } from "@/services/firebaseConnection"
 import { Skeleton } from "@/components/ui/skeleton"
 
 interface HomeProps {
-    
+    user: {
+        email: string
+    }
 }
 interface NotesProps {
+    id: string,
     note: string,
     desc: string,
     tag: string,
@@ -72,7 +75,7 @@ const chartConfig = {
     }
 } satisfies ChartConfig
 
-export default function Dashboard() {
+export default function Dashboard({ user }: HomeProps) {
     const { data: session } = useSession()
     const [noteInput, setNoteInput] = useState("")
     const [descInput, setDescInput] = useState("")
@@ -82,13 +85,14 @@ export default function Dashboard() {
 
     useEffect(() => {
         function LoadNotes() {
-            const q = query(collection(db, 'notes'), where("userEmail", "==", session?.user?.email))
+            const q = query(collection(db, 'notes'), where("userEmail", "==", user.email))
 
             onSnapshot(q, (snap) => {
                 let list = [] as NotesProps[]
 
                 snap.forEach((doc) => {
                     list.push({
+                        id: doc.data().id,
                         note: doc.data().note,
                         desc: doc.data().desc,
                         tag: doc.data().tag,
@@ -100,7 +104,7 @@ export default function Dashboard() {
             })
         }
         LoadNotes()
-    }, [session?.user?.email])
+    }, [user.email])
 
     async function handleNewNote(e: FormEvent) {
         e.preventDefault()
@@ -124,6 +128,13 @@ export default function Dashboard() {
         }
     }
 
+    async function handleDeleteNote(id: string) {
+        if(!id) return
+        console.log(id)
+        await deleteDoc(doc(db, 'notes', id))
+        toast.success('Nota deletada com sucesso.')
+    }
+
     return (
         <>
             <main className="flex items-start justify-center flex-row h-[calc(100vh-60px)]">
@@ -135,11 +146,13 @@ export default function Dashboard() {
                                     <div className="mr-2 bg-zinc-700 border border-zinc-500 p-3 rounded-full h-[38px] w-[38px] flex items-center justify-center">
                                         <p className="text-[15px]">{session?.user?.email ? session.user.email.charAt(0).toUpperCase() : ""}</p>
                                     </div>
-                                    <h1 className="text-[15px] font-light">{session?.user?.name}</h1>
+                                    {!loading ? <h1 className="text-[15px] font-light">{session?.user?.name}</h1> : (
+                                        <Skeleton className="h-4 w-[100px]" />
+                                    )}
                                 </div>
                             </TooltipTrigger>
                             <TooltipContent side="bottom">
-                                <p>Sua conta</p>
+                                <p>{session?.user?.email}</p>
                             </TooltipContent>
                         </Tooltip>
                         <Sheet>
@@ -221,16 +234,21 @@ export default function Dashboard() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 w-full mb-2">
                         {notes.map((i) => (
                             <CardNote
+                                id={i.id}
                                 title={i.note}
                                 desc={i.desc}
                                 tag={i.tag}
+                                handleDeleteNote={handleDeleteNote}
                             />
                         ))}
-                        {notes.length === 0 && loading === false && (
+                        {notes.length === 0 && loading === true && (
                             <>
-                                <Skeleton className="h-[125px] w-[250px] rounded-xl" />
-                                <Skeleton className="h-[125px] w-[250px] rounded-xl" />
+                                <Skeleton className="h-[200px] w-full rounded-xl" />
+                                <Skeleton className="h-[200px] w-full rounded-xl" />
                             </>
+                        )}
+                        {notes.length === 0 && (
+                            <p className="text-[12px] text-gray-500">Nenhuma nota cadastrada</p>
                         )}
                     </div>
                 </div>

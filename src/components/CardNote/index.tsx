@@ -43,12 +43,14 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 
 interface CardsProps {
+    id: string,
     title: string,
     desc: string,
     tag: string,
+    handleDeleteNote: (id: string) => void
 }
 
-export default function CardNote({ title, desc, tag }: CardsProps) {
+export default function CardNote({ title, desc, tag, handleDeleteNote, id }: CardsProps) {
     return (
         <Card className="w-ful">
             <CardHeader className="mb-1">
@@ -72,7 +74,7 @@ export default function CardNote({ title, desc, tag }: CardsProps) {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction>Deletar</AlertDialogAction>
+                            <AlertDialogAction onClick={() => handleDeleteNote(id)}>Deletar</AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialog>
